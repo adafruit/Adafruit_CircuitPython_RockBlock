@@ -45,22 +45,23 @@ Implementation Notes
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_RockBlock.git"
 
+
 class RockBlock:
-    '''Driver for RockBLOCK Iridium satellite modem.'''
+    """Driver for RockBLOCK Iridium satellite modem."""
 
     def __init__(self, uart, baudrate=19200):
         self._uart = uart
         self._uart.baudrate = baudrate
 
     def _uart_xfer(self, cmd):
-        '''Send AT command and return response.'''
+        """Send AT command and return response."""
         # response  = ATCMD\r\nRESP\r\n\r\nOK\r\n
         #       or  = ATCMD\r\nERROR\r\n
 
-        cmd = str.encode('AT'+cmd)
+        cmd = str.encode("AT" + cmd)
 
         self._uart.reset_input_buffer()
-        self._uart.write(cmd+'\r')
+        self._uart.write(cmd + "\r")
 
         resp = None
         if self._uart.readline().strip() == cmd:
@@ -71,5 +72,5 @@ class RockBlock:
 
     @property
     def model(self):
-        '''Return phone model.'''
-        return self._uart_xfer('+GMM')
+        """Return phone model."""
+        return self._uart_xfer("+GMM")
