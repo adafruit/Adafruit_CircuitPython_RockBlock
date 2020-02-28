@@ -68,3 +68,8 @@ class RockBlock:
 
         self._uart.reset_input_buffer()
         return resp
+
+    @property
+    def model(self):
+        '''Return phone model.'''
+        return self._uart_xfer('+GMM')
