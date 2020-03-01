@@ -1,3 +1,4 @@
+# pylint: disable=wrong-import-position
 # CircuitPython / Blinka
 import board
 

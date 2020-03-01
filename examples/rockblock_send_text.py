@@ -1,5 +1,5 @@
+# pylint: disable=wrong-import-position
 import time
-import struct
 
 # CircuitPython / Blinka
 import board
