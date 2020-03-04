@@ -116,8 +116,8 @@ class RockBlock:
     def text_out(self):
         """The text in the outbound buffer."""
         text = None
-        #TODO: add better check for non-text in buffer
-        #pylint: disable=broad-except
+        # TODO: add better check for non-text in buffer
+        # pylint: disable=broad-except
         try:
             text = self._buf_out.decode()
         except Exception:
