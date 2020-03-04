@@ -118,7 +118,7 @@ class RockBlock:
         text = None
         try:
             text = self._buf_out.decode()
-        except:
+        except Exception:
             pass
         return text
 
