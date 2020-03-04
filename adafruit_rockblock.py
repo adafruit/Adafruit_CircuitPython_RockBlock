@@ -42,6 +42,7 @@ Implementation Notes
 
 """
 
+import time
 import struct
 
 __version__ = "0.0.0-auto.0"
@@ -107,6 +108,8 @@ class RockBlock:
             resp = int(line)
             if resp != 0:
                 raise RuntimeError("Write error", resp)
+            # seems to want some time to digest
+            time.sleep(0.1)
         self._buf_out = buf
 
     @property
@@ -115,7 +118,7 @@ class RockBlock:
         text = None
         try:
             text = self._buf_out.decode()
-        except UnicodeDecodeError:
+        except:
             pass
         return text
 
@@ -170,7 +173,7 @@ class RockBlock:
         else:
             resp = self._uart_xfer("+SBDIX")
         if resp[-1].strip().decode() == "OK":
-            status = resp[1].strip().decode().split(":")[1]
+            status = resp[-3].strip().decode().split(":")[1]
             status = [int(s) for s in status.split(",")]
             if status[0] <= 8:
                 # outgoing message sent successfully
