@@ -190,7 +190,15 @@ class RockBlock:
             status = resp[1].strip().decode().split(":")[1]
             return tuple([int(a) for a in status.split(",")])
         return (None,) * 6
-
+      
+    @property
+    def signalStrength(self):
+        """Return Signal Strength 0 (no signal) to 5 (strong signal)."""
+        resp = self._uart_xfer("+CSQ")
+        if resp[-1].strip().decode() == "OK":
+            return resp[1].strip().decode().split(":")[1]
+        return None
+      
     @property
     def model(self):
         """Return modem model."""
