@@ -191,8 +191,8 @@ class RockBlock:
             return tuple([int(a) for a in status.split(",")])
         return (None,) * 6
       
-     @property
-     def signalStrength(self):
+    @property
+    def signalStrength(self):
         """Return Signal Strength 0 (no signal) to 5 (strong signal)."""
         resp = self._uart_xfer("+CSQ")
         if resp[-1].strip().decode() == "OK":
