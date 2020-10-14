@@ -16,7 +16,7 @@ from adafruit_rockblock import RockBlock
 rb = RockBlock(uart)
 
 # set the text
-rb.out_text = "hello world"
+rb.text_out = "hello world"
 
 # try a satellite Short Burst Data transfer
 print("Talking to satellite...")
