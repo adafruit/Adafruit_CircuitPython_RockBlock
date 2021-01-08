@@ -281,7 +281,7 @@ class RockBlock:
         1 Incoming voice call.
         2 Incoming data call.
         3 Incoming fax call.
-            
+
         <sbd_ri> indicates the SBD ring indication status:
         0 No SBD ring alert received.
         1 SBD ring alert received.
