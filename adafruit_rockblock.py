@@ -67,27 +67,24 @@ class RockBlock:
         resp = []
         line = self._uart.readline()
         if line is None:
-            # print("No response from Modem")
+            # No response from Modem
             return None
-        else:
+        resp.append(line)
+        while not any(EOM in line for EOM in (b"OK\r\n", b"ERROR\r\n")):
+            line = self._uart.readline()
             resp.append(line)
-            while not any(EOM in line for EOM in (b"OK\r\n", b"ERROR\r\n")):
-                line = self._uart.readline()
-                resp.append(line)
 
-            self._uart.reset_input_buffer()
+        self._uart.reset_input_buffer()
 
-            return tuple(resp)
+        return tuple(resp)
 
     def reset(self):
         """Perform a software reset."""
         if self._uart_xfer("&F0") is None:  # factory defaults
             return False
-        else:
-            if self._uart_xfer("&K0") is None:  # flow control off
-                return False
-            else:
-                return True
+        if self._uart_xfer("&K0") is None:  # flow control off
+            return False
+        return True
 
     def _transfer_buffer(self):
         """Copy out buffer to in buffer to simulate receiving a message."""
@@ -264,8 +261,7 @@ class RockBlock:
             resp = self._uart_xfer("+SBDMTA=" + str(int(value)))
             if resp[-1].strip().decode() == "OK":
                 return True
-            else:
-                raise RuntimeError("Error setting Ring Alert.")
+            raise RuntimeError("Error setting Ring Alert.")
         else:
             raise ValueError(
                 "Use 0 or False to disable Ring Alert or use 0 or True to enable Ring Alert."
@@ -302,14 +298,14 @@ class RockBlock:
         The response is in the form:
         [<x>,<y>,<z>,<timestamp>]
         <x>,<y>,<z> is a geolocation grid code from an earth centered Cartesian coordinate system,
-            using dimensions, x, y, and z, to specify location. The coordinate system is aligned such
-            that the z-axis is aligned with the north and south poles, leaving the x-axis and y-axis
-            to lie in the plane containing the equator. The axes are aligned such that at 0 degrees
-            latitude and 0 degrees longitude, both y and z are zero and x is positive (x = +6376,
-            representing the nominal earth radius in kilometres). Each dimension of the
-            geolocation grid code is displayed in decimal form using units of kilometres.
-            Each dimension of the geolocation grid code has a minimum value of –6376,
-            a maximum value of +6376, and a resolution of 4.
+            using dimensions, x, y, and z, to specify location. The coordinate system is aligned
+            such that the z-axis is aligned with the north and south poles, leaving the x-axis
+            and y-axis to lie in the plane containing the equator. The axes are aligned such that
+            at 0 degrees latitude and 0 degrees longitude, both y and z are zero and
+            x is positive (x = +6376, representing the nominal earth radius in kilometres).
+            Each dimension of the geolocation grid code is displayed in decimal form using
+            units of kilometres. Each dimension of the geolocation grid code has a minimum value
+            of –6376, a maximum value of +6376, and a resolution of 4.
         This geolocation coordinate system is known as ECEF (acronym earth-centered, earth-fixed),
             also known as ECR (initialism for earth-centered rotational)
 
