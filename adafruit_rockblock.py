@@ -61,13 +61,11 @@ class RockBlock:
 
     def _uart_xfer(self, cmd):
         """Send AT command and return response as tuple of lines read."""
-        print("sending command: " + cmd)
         self._uart.reset_input_buffer()
         self._uart.write(str.encode("AT" + cmd + "\r"))
 
         resp = []
         line = self._uart.readline()
-        print("uart line: " + line.decode())
         if line is None:
             # print("No response from Modem")
             return None
@@ -75,7 +73,6 @@ class RockBlock:
             resp.append(line)
             while not any(EOM in line for EOM in (b"OK\r\n", b"ERROR\r\n")):
                 line = self._uart.readline()
-                print("uart line: " + line.decode())
                 resp.append(line)
 
             self._uart.reset_input_buffer()
