@@ -57,7 +57,7 @@ class RockBlock:
         self._uart = uart
         self._uart.baudrate = baudrate
         self._buf_out = None
-        # self.reset()
+        self.reset()
 
     def _uart_xfer(self, cmd):
         """Send AT command and return response as tuple of lines read."""
