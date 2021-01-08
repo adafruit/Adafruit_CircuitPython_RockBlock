@@ -262,10 +262,9 @@ class RockBlock:
             if resp[-1].strip().decode() == "OK":
                 return True
             raise RuntimeError("Error setting Ring Alert.")
-        else:
-            raise ValueError(
-                "Use 0 or False to disable Ring Alert or use 0 or True to enable Ring Alert."
-            )
+        raise ValueError(
+            "Use 0 or False to disable Ring Alert or use 0 or True to enable Ring Alert."
+        )
 
     @property
     def ring_indication(self):
