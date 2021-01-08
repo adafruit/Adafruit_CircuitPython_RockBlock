@@ -222,7 +222,7 @@ class RockBlock:
         """Return Received Signal Strength Indicator (RSSI)
         values returned are 0 to 5, where 0 is no signal (0 bars) and 5 is strong signal (5 bars).
         Important note: signal strength may not be fully accurate, so
-            waiting for high signal strength prior to sending a message isn't always recommended.
+        waiting for high signal strength prior to sending a message isn't always recommended.
         For details see https://docs.rockblock.rock7.com/docs/checking-the-signal-strength
         """
         resp = self._uart_xfer("+CSQ")
@@ -275,14 +275,16 @@ class RockBlock:
         The response contains separate indications for telephony and SBD ring indications.
         The response is in the form:
         [<tel_ri>,<sbd_ri>]
-            where <tel_ri> indicates the telephony ring indication status:
-                0 No telephony ring alert received.
-                1 Incoming voice call.
-                2 Incoming data call.
-                3 Incoming fax call.
-            and <sbd_ri> indicates the SBD ring indication status:
-                0 No SBD ring alert received.
-                1 SBD ring alert received.
+
+        <tel_ri> indicates the telephony ring indication status:
+        0 No telephony ring alert received.
+        1 Incoming voice call.
+        2 Incoming data call.
+        3 Incoming fax call.
+            
+        <sbd_ri> indicates the SBD ring indication status:
+        0 No SBD ring alert received.
+        1 SBD ring alert received.
         """
         resp = self._uart_xfer("+CRIS")
         if resp[-1].strip().decode() == "OK":
@@ -296,22 +298,25 @@ class RockBlock:
         and the current time based on the Iridium network timestamp.
         The response is in the form:
         [<x>,<y>,<z>,<timestamp>]
-        <x>,<y>,<z> is a geolocation grid code from an earth centered Cartesian coordinate system,
-            using dimensions, x, y, and z, to specify location. The coordinate system is aligned
-            such that the z-axis is aligned with the north and south poles, leaving the x-axis
-            and y-axis to lie in the plane containing the equator. The axes are aligned such that
-            at 0 degrees latitude and 0 degrees longitude, both y and z are zero and
-            x is positive (x = +6376, representing the nominal earth radius in kilometres).
-            Each dimension of the geolocation grid code is displayed in decimal form using
-            units of kilometres. Each dimension of the geolocation grid code has a minimum value
-            of –6376, a maximum value of +6376, and a resolution of 4.
-        This geolocation coordinate system is known as ECEF (acronym earth-centered, earth-fixed),
-            also known as ECR (initialism for earth-centered rotational)
 
+        <x>,<y>,<z> is a geolocation grid code from an earth centered Cartesian coordinate system,
+        using dimensions, x, y, and z, to specify location. The coordinate system is aligned
+        such that the z-axis is aligned with the north and south poles, leaving the x-axis
+        and y-axis to lie in the plane containing the equator. The axes are aligned such that
+        at 0 degrees latitude and 0 degrees longitude, both y and z are zero and
+        x is positive (x = +6376, representing the nominal earth radius in kilometres).
+        Each dimension of the geolocation grid code is displayed in decimal form using
+        units of kilometres. Each dimension of the geolocation grid code has a minimum value
+        of –6376, a maximum value of +6376, and a resolution of 4.
+        This geolocation coordinate system is known as ECEF (acronym earth-centered, earth-fixed),
+        also known as ECR (initialism for earth-centered rotational)
+
+        <timestamp> is a time_struct
         The timestamp is assigned by the modem when the geolocation grid code received from
-            the network is stored to the modem's internal memory.
+        the network is stored to the modem's internal memory.
         The timestamp used by the modem is Iridium system time, which is a running count of
-            90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC.
+        90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC.
+        The timestamp returned by the modem is a 32-bit integer displayed in hexadecimal form.
         We convert the modem's timestamp and return it as a time_struct.
         """
         resp = self._uart_xfer("-MSGEO")
@@ -353,9 +358,9 @@ class RockBlock:
         """
         Return the current date and time as given by the Iridium network
         The timestamp is assigned by the modem when the geolocation grid code received from
-            the network is stored to the modem's internal memory.
+        the network is stored to the modem's internal memory.
         The timestamp used by the modem is Iridium system time, which is a running count of
-            90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC.
+        90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC.
         We convert the modem's timestamp and return it as a time_struct.
         """
         resp = self._uart_xfer("-MSSTM")
@@ -371,7 +376,7 @@ class RockBlock:
 
             # milliseconds to seconds\
             # hack to divide by 1000 and avoid using limited floating point math which throws the
-            #    calculations off quite a bit, this should be accurate to 1 second or so
+            # calculations off quite a bit, this should be accurate to 1 second or so
             ms_str = str(ms_since_epoch)
             substring = ms_str[0 : len(ms_str) - 3]
             secs_since_epoch = int(substring)
