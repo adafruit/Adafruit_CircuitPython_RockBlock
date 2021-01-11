@@ -66,9 +66,6 @@ class RockBlock:
 
         resp = []
         line = self._uart.readline()
-        if line is None:
-            # No response from Modem
-            return None
         resp.append(line)
         while not any(EOM in line for EOM in (b"OK\r\n", b"ERROR\r\n")):
             line = self._uart.readline()
