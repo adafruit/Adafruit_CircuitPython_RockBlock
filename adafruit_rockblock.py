@@ -207,7 +207,7 @@ class RockBlock:
         return None
 
     @property
-    def imei(self):
+    def serial_number(self):
         """Return modem imei/serial."""
         resp = self._uart_xfer("+CGSN")
         if resp[-1].strip().decode() == "OK":
