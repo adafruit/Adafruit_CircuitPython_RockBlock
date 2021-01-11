@@ -228,7 +228,7 @@ class RockBlock:
         return None
 
     @property
-    def version(self):
+    def revision(self):
         """Return the modem components' firmware versions.
         For example: Call Processor Version, Modem DSP Version, DBB Version (ASIC),
         RFA VersionSRFA2), NVM Version, Hardware Version, BOOT Version
