@@ -420,3 +420,43 @@ class RockBlock:
             time_now_unix = iridium_epoch_unix + int(secs_since_epoch)
             return time.localtime(time_now_unix)
         return None
+
+    @property
+    def energy_monitor(self):
+        """Report the current accumulated energy usage estimate in microamp hours.
+
+        Returns an estimate of the charge taken from the +5V supply to the modem,
+        in microamp hours (uAh). This is represented internally as a 26-bit unsigned number,
+        so in principle will rollover to zero after approx. 67Ah (in practice this is usually
+        greater than battery life, if battery-powered).
+
+        The accumulator value is set to zero on a power-cycle or on a watchdog reset.
+        Note that while +5V power is supplied to the Data Module but the module is powered off
+        by its ON/OFF control line, it will still be consuming up to a few tens of microamps,
+        and this current drain will not be estimated in the +GEMON report.
+
+        The setter will preset the energy monitor accumulator to value n (typically, <n> would
+        be specified as 0, to clear the accumulator).
+
+        Note: Call Processor Version: TA12003 is known to not support the AT+GEMON energy
+        monitor command. It is however known to work on TA19002 (newer) and TA12003 (older).
+        You may use the revision function to determine which version you have. Function will
+        return None if modem cannot retrieve the accumuulated energy usage estimate.
+
+        Returns
+        int
+        """
+
+        resp = self._uart_xfer("+GEMON")
+        if resp[-1].strip().decode() == "OK":
+            return int(resp[1].strip().decode().split(":")[1])
+        return None
+
+    @energy_monitor.setter
+    def energy_monitor(self, value):
+        if 0 <= value <= 67108863:  # 0 to 2^26 - 1
+            resp = self._uart_xfer("+GEMON=" + str(value))
+            if resp[-1].strip().decode() == "OK":
+                return True
+            raise RuntimeError("Error setting energy monitor accumulator.")
+        raise ValueError("Value must be between 0 and 67108863 (2^26 - 1).")
