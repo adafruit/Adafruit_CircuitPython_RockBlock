@@ -77,11 +77,8 @@ class RockBlock:
 
     def reset(self):
         """Perform a software reset."""
-        if self._uart_xfer("&F0")[0] is None:  # factory defaults
-            return False
-        if self._uart_xfer("&K0")[0] is None:  # flow control off
-            return False
-        return True
+        self._uart_xfer("&F0")  # factory defaults
+        self._uart_xfer("&K0")  # flow control off
 
     def _transfer_buffer(self):
         """Copy out buffer to in buffer to simulate receiving a message."""
@@ -275,8 +272,8 @@ class RockBlock:
         return None
 
     @ring_alert.setter
-    def ring_alert(self, value=1):
-        if value in [True, False]:
+    def ring_alert(self, value):
+        if value in (True, False):
             resp = self._uart_xfer("+SBDMTA=" + str(int(value)))
             if resp[-1].strip().decode() == "OK":
                 return True
@@ -369,17 +366,12 @@ class RockBlock:
 
             # add timestamp's seconds to the iridium epoch
             time_now_unix = iridium_epoch_unix + int(secs_since_epoch)
-
-            # convert to time struct
-            time_now = time.localtime(time_now_unix)
-
-            values = [
+            return (
                 int(temp[0]),
                 int(temp[1]),
                 int(temp[2]),
-                time_now,
-            ]
-            return tuple(values)
+                time.localtime(time_now_unix),
+            )
         return (None,) * 4
 
     @property
@@ -426,9 +418,5 @@ class RockBlock:
 
             # add timestamp's seconds to the iridium epoch
             time_now_unix = iridium_epoch_unix + int(secs_since_epoch)
-
-            # convert to time struct
-            time_now = time.localtime(time_now_unix)
-
-            return time_now
+            return time.localtime(time_now_unix)
         return None
