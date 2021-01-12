@@ -77,9 +77,9 @@ class RockBlock:
 
     def reset(self):
         """Perform a software reset."""
-        if self._uart_xfer("&F0") is None:  # factory defaults
+        if self._uart_xfer("&F0")[0] is None:  # factory defaults
             return False
-        if self._uart_xfer("&K0") is None:  # flow control off
+        if self._uart_xfer("&K0")[0] is None:  # flow control off
             return False
         return True
 
@@ -89,7 +89,7 @@ class RockBlock:
 
     @property
     def data_out(self):
-        "The binary data in the outbound buffer."
+        """The binary data in the outbound buffer."""
         return self._buf_out
 
     @data_out.setter
@@ -208,30 +208,43 @@ class RockBlock:
 
     @property
     def serial_number(self):
-        """Return modem imei/serial."""
+        """Modem's serial number, also known as the modem's IMEI.
+
+        Returns
+        string
+        """
         resp = self._uart_xfer("+CGSN")
         if resp[-1].strip().decode() == "OK":
             return resp[1].strip().decode()
         return None
 
     @property
-    def rssi(self):
-        """Return Received Signal Strength Indicator (RSSI)
-        values returned are 0 to 5, where 0 is no signal (0 bars) and 5 is strong signal (5 bars).
-        Important note: signal strength may not be fully accurate, so
-        waiting for high signal strength prior to sending a message isn't always recommended.
+    def signal_quality(self):
+        """Signal Quality also known as the Received Signal Strength Indicator (RSSI).
+
+        Values returned are 0 to 5, where 0 is no signal (0 bars) and 5 is strong signal (5 bars).
+
+        Important note: signal strength may not be fully accurate, so waiting for
+        high signal strength prior to sending a message isn't always recommended.
         For details see https://docs.rockblock.rock7.com/docs/checking-the-signal-strength
+
+        Returns:
+        int
         """
         resp = self._uart_xfer("+CSQ")
         if resp[-1].strip().decode() == "OK":
-            return resp[1].strip().decode().split(":")[1]
+            return int(resp[1].strip().decode().split(":")[1])
         return None
 
     @property
     def revision(self):
-        """Return the modem components' firmware versions.
+        """Modem's internal component firmware revisions.
+
         For example: Call Processor Version, Modem DSP Version, DBB Version (ASIC),
         RFA VersionSRFA2), NVM Version, Hardware Version, BOOT Version
+
+        Returns a tuple:
+        (string, string, string, string, string, string, string)
         """
         resp = self._uart_xfer("+CGMR")
         if resp[-1].strip().decode() == "OK":
@@ -240,12 +253,22 @@ class RockBlock:
                 line = resp[x]
                 if line != b"\r\n":
                     lines.append(line.decode().strip())
-            return lines
-        return None
+            return tuple(lines)
+        return (None,) * 7
 
     @property
     def ring_alert(self):
-        """Retrieve setting for SBD Ring Alerts."""
+        """The current ring indication mode.
+
+        False means Ring Alerts are disabled, and True means Ring Alerts are enabled.
+
+        When SBD ring indication is enabled, the ISU asserts the RI line and issues
+        the unsolicited result code SBDRING when an SBD ring alert is received.
+        (Note: the network can only send ring alerts to the ISU after it has registered).
+
+        Returns:
+        bool
+        """
         resp = self._uart_xfer("+SBDMTA?")
         if resp[-1].strip().decode() == "OK":
             return bool(int(resp[1].strip().decode().split(":")[1]))
@@ -253,25 +276,24 @@ class RockBlock:
 
     @ring_alert.setter
     def ring_alert(self, value=1):
-        """Enable or disable ring alert feature."""
         if value in [True, False]:
             resp = self._uart_xfer("+SBDMTA=" + str(int(value)))
             if resp[-1].strip().decode() == "OK":
                 return True
             raise RuntimeError("Error setting Ring Alert.")
         raise ValueError(
-            "Use 0 or False to disable Ring Alert or use 0 or True to enable Ring Alert."
+            "Use 0 or False to disable Ring Alert or use 1 or True to enable Ring Alert."
         )
 
     @property
     def ring_indication(self):
-        """
-        Query the ring indication status, returning the reason for the most recent assertion
-        of the Ring Indicate signal.
+        """The ring indication status.
+
+        Returns the reason for the most recent assertion of the Ring Indicate signal.
 
         The response contains separate indications for telephony and SBD ring indications.
         The response is in the form:
-        [<tel_ri>,<sbd_ri>]
+        (<tel_ri>,<sbd_ri>)
 
         <tel_ri> indicates the telephony ring indication status:
         0 No telephony ring alert received.
@@ -282,21 +304,24 @@ class RockBlock:
         <sbd_ri> indicates the SBD ring indication status:
         0 No SBD ring alert received.
         1 SBD ring alert received.
+
+        Returns a tuple:
+        (string, string)
         """
         resp = self._uart_xfer("+CRIS")
         if resp[-1].strip().decode() == "OK":
-            return resp[1].strip().decode().split(":")[1].split(",")
-        return None
+            return tuple(resp[1].strip().decode().split(":")[1].split(","))
+        return (None,) * 2
 
     @property
     def geolocation(self):
-        """
-        Return the geolocation of the modem as measured by the Iridium constellation
-        and the current time based on the Iridium network timestamp.
-        The response is in the form:
-        [<x>,<y>,<z>,<timestamp>]
+        """Most recent geolocation of the modem as measured by the Iridium constellation
+        including a timestamp of when geolocation measurement was made.
 
-        <x>,<y>,<z> is a geolocation grid code from an earth centered Cartesian coordinate system,
+        The response is in the form:
+        (<x>, <y>, <z>, <timestamp>)
+
+        <x>, <y>, <z> is a geolocation grid code from an earth centered Cartesian coordinate system,
         using dimensions, x, y, and z, to specify location. The coordinate system is aligned
         such that the z-axis is aligned with the north and south poles, leaving the x-axis
         and y-axis to lie in the plane containing the equator. The axes are aligned such that
@@ -311,10 +336,17 @@ class RockBlock:
         <timestamp> is a time_struct
         The timestamp is assigned by the modem when the geolocation grid code received from
         the network is stored to the modem's internal memory.
+
         The timestamp used by the modem is Iridium system time, which is a running count of
-        90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC.
+        90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC (the most recent
+        Iridium epoch).
         The timestamp returned by the modem is a 32-bit integer displayed in hexadecimal form.
         We convert the modem's timestamp and return it as a time_struct.
+
+        The system time value is always expressed in UTC time.
+
+        Returns a tuple:
+        (int, int, int, time_struct)
         """
         resp = self._uart_xfer("-MSGEO")
         if resp[-1].strip().decode() == "OK":
@@ -347,18 +379,29 @@ class RockBlock:
                 int(temp[2]),
                 time_now,
             ]
-            return values
-        return None
+            return tuple(values)
+        return (None,) * 4
 
     @property
-    def timestamp(self):
-        """
-        Return the current date and time as given by the Iridium network
-        The timestamp is assigned by the modem when the geolocation grid code received from
-        the network is stored to the modem's internal memory.
+    def system_time(self):
+        """Current date and time as given by the Iridium network.
+
+        The system time is available and valid only after the ISU has registered with
+        the network and has received the Iridium system time from the network.
+        Once the time is received, the ISU uses its internal clock to increment the counter.
+        In addition, at least every 8 hours, or on location update or other event that
+        requires re-registration, the ISU will obtain a new system time from the network.
+
         The timestamp used by the modem is Iridium system time, which is a running count of
-        90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC.
+        90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC (the most recent
+        Iridium epoch).
+        The timestamp returned by the modem is a 32-bit integer displayed in hexadecimal form.
         We convert the modem's timestamp and return it as a time_struct.
+
+        The system time value is always expressed in UTC time.
+
+        Returns:
+        time_struct
         """
         resp = self._uart_xfer("-MSSTM")
         if resp[-1].strip().decode() == "OK":
