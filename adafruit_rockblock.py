@@ -441,7 +441,7 @@ class RockBlock:
         Note: Call Processor Version: TA12003 is known to not support the AT+GEMON energy
         monitor command. It is however known to work on TA19002 (newer) and TA12003 (older).
         You may use the revision function to determine which version you have. Function will
-        return None if modem cannot retrieve the accumuulated energy usage estimate.
+        return None if modem cannot retrieve the accumulated energy usage estimate.
 
         Returns
         int
