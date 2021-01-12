@@ -406,7 +406,6 @@ class RockBlock:
         resp = self._uart_xfer("-MSSTM")
         if resp[-1].strip().decode() == "OK":
             temp = resp[1].strip().decode().split(":")[1]
-            print(temp)
             if temp == " no network service":
                 return None
             ticks_since_epoch = int(temp, 16)
