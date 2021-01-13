@@ -438,7 +438,7 @@ class RockBlock:
         The setter will preset the energy monitor accumulator to value n (typically, <n> would
         be specified as 0, to clear the accumulator).
 
-        Note: Call Processor Version: TA12003 is known to not support the AT+GEMON energy
+        Note: Call Processor/BOOT Version: TA16005 is known to not support the AT+GEMON energy
         monitor command. It is however known to work on TA19002 (newer) and TA12003 (older).
         You may use the revision function to determine which version you have. Function will
         return None if modem cannot retrieve the accumulated energy usage estimate.
