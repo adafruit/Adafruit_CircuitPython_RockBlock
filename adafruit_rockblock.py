@@ -181,7 +181,7 @@ class RockBlock:
         if resp[-1].strip().decode() == "OK":
             status = resp[-3].strip().decode().split(":")[1]
             status = [int(s) for s in status.split(",")]
-            if status[0] <= 4:
+            if status[0] <= 5:
                 # outgoing message sent successfully
                 self.data_out = None
         return tuple(status)
