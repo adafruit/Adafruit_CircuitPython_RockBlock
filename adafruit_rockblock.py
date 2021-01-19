@@ -423,7 +423,7 @@ class RockBlock:
 
     @property
     def energy_monitor(self):
-        """Report the current accumulated energy usage estimate in microamp hours.
+        """The current accumulated energy usage estimate in microamp hours.
 
         Returns an estimate of the charge taken from the +5V supply to the modem,
         in microamp hours (uAh). This is represented internally as a 26-bit unsigned number,
