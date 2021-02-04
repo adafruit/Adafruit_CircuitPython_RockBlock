@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 # pylint: disable=wrong-import-position
 # CircuitPython / Blinka
 import board
