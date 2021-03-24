@@ -175,7 +175,7 @@ class RockBlock:
         resp = self._uart_xfer("+SBDSX")
         if resp[-1].strip().decode() == "OK":
             status = resp[1].strip().decode().split(":")[1]
-            return tuple([int(a) for a in status.split(",")])
+            return tuple(int(a) for a in status.split(","))
         return (None,) * 6
 
     @property
