@@ -213,7 +213,7 @@ class RockBlock:
         """
         resp = self._uart_xfer("+CSQ")
         if resp[-1].strip().decode() == "OK":
-            return int(resp[1].strip().decode().split(":")[1])
+            return int(resp[-3].strip().decode().split(":")[1])
         return None
 
     @property
