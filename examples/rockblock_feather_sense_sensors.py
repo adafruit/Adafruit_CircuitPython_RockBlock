@@ -16,12 +16,15 @@ uart = board.UART()
 uart.baudrate = 19200
 rb = adafruit_rockblock.RockBlock(uart)
 
+i2c = board.I2C()  # uses board.SCL and board.SDA
+# i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
+
 # all the sensors
-accelo = adafruit_lsm6ds.LSM6DS33(board.I2C())
-magno = adafruit_lis3mdl.LIS3MDL(board.I2C())
-prox = adafruit_apds9960.apds9960.APDS9960(board.I2C())
-sht = adafruit_sht31d.SHT31D(board.I2C())
-bmp = adafruit_bmp280.Adafruit_BMP280_I2C(board.I2C())
+accelo = adafruit_lsm6ds.LSM6DS33(i2c)
+magno = adafruit_lis3mdl.LIS3MDL(i2c)
+prox = adafruit_apds9960.apds9960.APDS9960(i2c)
+sht = adafruit_sht31d.SHT31D(i2c)
+bmp = adafruit_bmp280.Adafruit_BMP280_I2C(i2c)
 
 # build data
 # can decode on other end with struct.unpack("<6fB5f", data)
