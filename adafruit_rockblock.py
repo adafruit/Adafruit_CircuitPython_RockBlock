@@ -24,6 +24,8 @@ Implementation Notes
   https://github.com/adafruit/circuitpython/releases
 
 """
+from __future__ import annotations
+
 try:
     from typing import Tuple, Union, Optional
     from board import UART
