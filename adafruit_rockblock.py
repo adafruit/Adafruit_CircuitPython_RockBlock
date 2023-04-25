@@ -25,10 +25,9 @@ Implementation Notes
 
 """
 try:
-    from typing import Tuple, List, Union, Optional
+    from typing import Tuple, Union, Optional
     from board import UART
     from serial import Serial
-    from time import time_struct
 except ImportError:
     pass
 
@@ -48,7 +47,7 @@ class RockBlock:
         self._buf_out = None
         self.reset()
 
-    def _uart_xfer(self, cmd: str) -> Tuple[List[bytes]]:
+    def _uart_xfer(self, cmd: str) -> Tuple[bytes, ...]:
         """Send AT command and return response as tuple of lines read."""
         self._uart.reset_input_buffer()
         self._uart.write(str.encode("AT" + cmd + "\r"))
@@ -74,7 +73,7 @@ class RockBlock:
         self._uart_xfer("+SBDTC")
 
     @property
-    def data_out(self) -> None:
+    def data_out(self) -> Optional[bytes]:
         """The binary data in the outbound buffer."""
         return self._buf_out
 
@@ -126,7 +125,7 @@ class RockBlock:
         self.data_out = str.encode(text)
 
     @property
-    def data_in(self) -> Optional[List[bytes]]:
+    def data_in(self) -> Optional[bytes]:
         """The binary data in the inbound buffer."""
         data = None
         if self.status[2] == 1:
@@ -157,10 +156,10 @@ class RockBlock:
         return text
 
     @text_in.setter
-    def text_in(self, text: str) -> None:
+    def text_in(self, text: bytes) -> None:
         self.data_in = text
 
-    def satellite_transfer(self, location: str = None) -> Tuple[Optional[str], ...]:
+    def satellite_transfer(self, location: str = None) -> Tuple[Optional[int], ...]:
         """Initiate a Short Burst Data transfer with satellites."""
         status = (None,) * 6
         if location:
@@ -176,7 +175,7 @@ class RockBlock:
         return tuple(status)
 
     @property
-    def status(self) -> Tuple[Optional[str], ...]:
+    def status(self) -> Tuple[Optional[int], ...]:
         """Return tuple of Short Burst Data status."""
         resp = self._uart_xfer("+SBDSX")
         if resp[-1].strip().decode() == "OK":
@@ -205,7 +204,7 @@ class RockBlock:
         return None
 
     @property
-    def signal_quality(self) -> int:
+    def signal_quality(self) -> Optional[int]:
         """Signal Quality also known as the Received Signal Strength Indicator (RSSI).
 
         Values returned are 0 to 5, where 0 is no signal (0 bars) and 5 is strong signal (5 bars).
@@ -302,7 +301,7 @@ class RockBlock:
     @property
     def geolocation(
         self,
-    ) -> Union[Tuple[int, int, int, time_struct], Tuple[None, None, None, None]]:
+    ) -> Union[Tuple[int, int, int, time.struct_time], Tuple[None, None, None, None]]:
         """Most recent geolocation of the modem as measured by the Iridium constellation
         including a timestamp of when geolocation measurement was made.
 
@@ -321,7 +320,7 @@ class RockBlock:
         This geolocation coordinate system is known as ECEF (acronym earth-centered, earth-fixed),
         also known as ECR (initialism for earth-centered rotational)
 
-        <timestamp> is a time_struct
+        <timestamp> is a time.struct_time
         The timestamp is assigned by the modem when the geolocation grid code received from
         the network is stored to the modem's internal memory.
 
@@ -329,12 +328,12 @@ class RockBlock:
         90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC (the most recent
         Iridium epoch).
         The timestamp returned by the modem is a 32-bit integer displayed in hexadecimal form.
-        We convert the modem's timestamp and return it as a time_struct.
+        We convert the modem's timestamp and return it as a time.struct_time.
 
         The system time value is always expressed in UTC time.
 
         Returns a tuple:
-        (int, int, int, time_struct)
+        (int, int, int, time.struct_time)
         """
         resp = self._uart_xfer("-MSGEO")
         if resp[-1].strip().decode() == "OK":
@@ -366,7 +365,7 @@ class RockBlock:
         return (None,) * 4
 
     @property
-    def system_time(self) -> Optional[time_struct]:
+    def system_time(self) -> Optional[time.struct_time]:
         """Current date and time as given by the Iridium network.
 
         The system time is available and valid only after the ISU has registered with
@@ -379,12 +378,12 @@ class RockBlock:
         90 millisecond intervals, since Sunday May 11, 2014, at 14:23:55 UTC (the most recent
         Iridium epoch).
         The timestamp returned by the modem is a 32-bit integer displayed in hexadecimal form.
-        We convert the modem's timestamp and return it as a time_struct.
+        We convert the modem's timestamp and return it as a time.struct_time.
 
         The system time value is always expressed in UTC time.
 
         Returns:
-        time_struct
+        time.struct_time
         """
         resp = self._uart_xfer("-MSSTM")
         if resp[-1].strip().decode() == "OK":
