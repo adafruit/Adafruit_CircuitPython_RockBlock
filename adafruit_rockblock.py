@@ -223,7 +223,7 @@ class RockBlock:
         return None
 
     @property
-    def revision(self) -> Tuple[ Optional[str], ...]:
+    def revision(self) -> Tuple[Optional[str], ...]:
         """Modem's internal component firmware revisions.
 
         For example: Call Processor Version, Modem DSP Version, DBB Version (ASIC),
@@ -272,7 +272,7 @@ class RockBlock:
         )
 
     @property
-    def ring_indication(self) -> Tuple[ Optional[str], ...]:
+    def ring_indication(self) -> Tuple[Optional[str], ...]:
         """The ring indication status.
 
         Returns the reason for the most recent assertion of the Ring Indicate signal.
@@ -300,7 +300,9 @@ class RockBlock:
         return (None,) * 2
 
     @property
-    def geolocation(self) -> Union[Tuple[int, int, int, time_struct], Tuple[None, None, None, None]]:
+    def geolocation(
+        self,
+    ) -> Union[Tuple[int, int, int, time_struct], Tuple[None, None, None, None]]:
         """Most recent geolocation of the modem as measured by the Iridium constellation
         including a timestamp of when geolocation measurement was made.
 
