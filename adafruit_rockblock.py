@@ -28,7 +28,7 @@ from __future__ import annotations
 
 try:
     from typing import Tuple, Union, Optional
-    from board import UART
+    from busio import UART
     from serial import Serial
 except ImportError:
     pass

@@ -3,5 +3,3 @@
 # SPDX-License-Identifier: Unlicense
 
 Adafruit-Blinka
-board
-serial
