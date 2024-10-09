@@ -295,7 +295,7 @@ class RockBlock:
         Returns a tuple:
         (string, string)
         """
-        resp = self._uart_xfer("+CRIS")
+        resp = self._uart_xfer("+CRISX")
         if resp[-1].strip().decode() == "OK":
             return tuple(resp[1].strip().decode().split(":")[1].split(","))
         return (None,) * 2
