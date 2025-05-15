@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
 # SPDX-License-Identifier: MIT
 
-# pylint: disable=wrong-import-position
-import time
 import struct
+import time
 
 # CircuitPython / Blinka
 import board
@@ -39,7 +38,7 @@ print("Raw data = ", data)
 some_int = struct.unpack("i", data[0:4])[0]
 some_float = struct.unpack("f", data[4:8])[0]
 text_len = struct.unpack("i", data[8:12])[0]
-some_text = struct.unpack("{}s".format(text_len), data[12:])[0]
+some_text = struct.unpack(f"{text_len}s", data[12:])[0]
 
 # turn text into string
 some_text = some_text.decode()
