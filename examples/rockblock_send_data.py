@@ -1,9 +1,8 @@
 # SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
 # SPDX-License-Identifier: MIT
 
-# pylint: disable=wrong-import-position
-import time
 import struct
+import time
 
 # CircuitPython / Blinka
 import board
@@ -29,7 +28,7 @@ text_len = len(some_text)
 data = struct.pack("i", some_int)
 data += struct.pack("f", some_float)
 data += struct.pack("i", len(some_text))
-data += struct.pack("{}s".format(text_len), some_text.encode())
+data += struct.pack(f"{text_len}s", some_text.encode())
 
 # put data in outbound buffer
 rb.data_out = data

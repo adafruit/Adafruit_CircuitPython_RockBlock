@@ -1,14 +1,16 @@
 # SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
 # SPDX-License-Identifier: MIT
 
-import time
 import struct
-import board
-import adafruit_lsm6ds
-import adafruit_lis3mdl
+import time
+
 import adafruit_apds9960.apds9960
-import adafruit_sht31d
 import adafruit_bmp280
+import adafruit_lis3mdl
+import adafruit_lsm6ds
+import adafruit_sht31d
+import board
+
 import adafruit_rockblock
 
 # RockBlock setup

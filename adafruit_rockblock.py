@@ -24,17 +24,19 @@ Implementation Notes
   https://github.com/adafruit/circuitpython/releases
 
 """
+
 from __future__ import annotations
 
 try:
-    from typing import Tuple, Union, Optional
+    from typing import Optional, Union
+
     from busio import UART
     from serial import Serial
 except ImportError:
     pass
 
-import time
 import struct
+import time
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_RockBlock.git"
@@ -49,7 +51,7 @@ class RockBlock:
         self._buf_out = None
         self.reset()
 
-    def _uart_xfer(self, cmd: str) -> Tuple[bytes, ...]:
+    def _uart_xfer(self, cmd: str) -> tuple[bytes, ...]:
         """Send AT command and return response as tuple of lines read."""
         self._uart.reset_input_buffer()
         self._uart.write(str.encode("AT" + cmd + "\r"))
@@ -91,7 +93,7 @@ class RockBlock:
             # set the buffer
             if len(buf) > 340:
                 raise RuntimeError("Maximum length of 340 bytes.")
-            self._uart.write(str.encode("AT+SBDWB={}\r".format(len(buf))))
+            self._uart.write(str.encode(f"AT+SBDWB={len(buf)}\r"))
             line = self._uart.readline()
             while line != b"READY\r\n":
                 line = self._uart.readline()
@@ -111,7 +113,6 @@ class RockBlock:
         """The text in the outbound buffer."""
         text = None
         # TODO: add better check for non-text in buffer
-        # pylint: disable=broad-except
         try:
             text = self._buf_out.decode()
         except Exception:
@@ -161,7 +162,7 @@ class RockBlock:
     def text_in(self, text: bytes) -> None:
         self.data_in = text
 
-    def satellite_transfer(self, location: str = None) -> Tuple[Optional[int], ...]:
+    def satellite_transfer(self, location: str = None) -> tuple[Optional[int], ...]:
         """Initiate a Short Burst Data transfer with satellites."""
         status = (None,) * 6
         if location:
@@ -177,7 +178,7 @@ class RockBlock:
         return tuple(status)
 
     @property
-    def status(self) -> Tuple[Optional[int], ...]:
+    def status(self) -> tuple[Optional[int], ...]:
         """Return tuple of Short Burst Data status."""
         resp = self._uart_xfer("+SBDSX")
         if resp[-1].strip().decode() == "OK":
@@ -224,7 +225,7 @@ class RockBlock:
         return None
 
     @property
-    def revision(self) -> Tuple[Optional[str], ...]:
+    def revision(self) -> tuple[Optional[str], ...]:
         """Modem's internal component firmware revisions.
 
         For example: Call Processor Version, Modem DSP Version, DBB Version (ASIC),
@@ -263,7 +264,7 @@ class RockBlock:
 
     @ring_alert.setter
     def ring_alert(self, value: Union[int, bool]) -> Optional[bool]:
-        if value in (True, False):
+        if value in {True, False}:
             resp = self._uart_xfer("+SBDMTA=" + str(int(value)))
             if resp[-1].strip().decode() == "OK":
                 return True
@@ -273,7 +274,7 @@ class RockBlock:
         )
 
     @property
-    def ring_indication(self) -> Tuple[Optional[str], ...]:
+    def ring_indication(self) -> tuple[Optional[str], ...]:
         """The ring indication status.
 
         Returns the reason for the most recent assertion of the Ring Indicate signal.
@@ -303,7 +304,7 @@ class RockBlock:
     @property
     def geolocation(
         self,
-    ) -> Union[Tuple[int, int, int, time.struct_time], Tuple[None, None, None, None]]:
+    ) -> Union[tuple[int, int, int, time.struct_time], tuple[None, None, None, None]]:
         """Most recent geolocation of the modem as measured by the Iridium constellation
         including a timestamp of when geolocation measurement was made.
 
@@ -341,9 +342,7 @@ class RockBlock:
         if resp[-1].strip().decode() == "OK":
             temp = resp[1].strip().decode().split(":")[1].split(",")
             ticks_since_epoch = int(temp[3], 16)
-            ms_since_epoch = (
-                ticks_since_epoch * 90
-            )  # convert iridium ticks to milliseconds
+            ms_since_epoch = ticks_since_epoch * 90  # convert iridium ticks to milliseconds
 
             # milliseconds to seconds
             # hack to divide by 1000 and avoid using limited floating point math which throws the
@@ -393,9 +392,7 @@ class RockBlock:
             if temp == " no network service":
                 return None
             ticks_since_epoch = int(temp, 16)
-            ms_since_epoch = (
-                ticks_since_epoch * 90
-            )  # convert iridium ticks to milliseconds
+            ms_since_epoch = ticks_since_epoch * 90  # convert iridium ticks to milliseconds
 
             # milliseconds to seconds\
             # hack to divide by 1000 and avoid using limited floating point math which throws the
