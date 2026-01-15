@@ -281,7 +281,7 @@ class RockBlock:
 
         The response contains separate indications for telephony and SBD ring indications.
         The response is in the form:
-        (<tel_ri>,<sbd_ri>)
+        (<tel_ri>,<sbd_ri>,<timestamp>)
 
         <tel_ri> indicates the telephony ring indication status:
         0 No telephony ring alert received.
@@ -293,13 +293,18 @@ class RockBlock:
         0 No SBD ring alert received.
         1 SBD ring alert received.
 
+        <timestamp> 2-bit L-band Frame Number (i.e. Iridium System Time) of the most
+        recent SBD Ring Alert message received from the network, presented in hexadecimal
+        format (up to 8 characters). The value is invalid (or may refer to an earlier
+        Ring Alert) if <sri>=0.
+
         Returns a tuple:
-        (string, string)
+        (string, string, string)
         """
         resp = self._uart_xfer("+CRISX")
         if resp[-1].strip().decode() == "OK":
             return tuple(resp[1].strip().decode().split(":")[1].split(","))
-        return (None,) * 2
+        return (None,) * 3
 
     @property
     def geolocation(
