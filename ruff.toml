@@ -99,6 +99,7 @@ ignore = [
     "PLR0912", # too-many-branches
     "PLR0916", # too-many-boolean-expressions
     "UP007", # use-pep604-annotation
+    "UP045", # use-X-or-None
 ]
 
 [format]
